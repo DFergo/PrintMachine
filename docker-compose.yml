@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  printmachine:
+    build: .
+    container_name: printmachine-demo
+    ports:
+      - "8333:80"
+    restart: unless-stopped
+    # Opcional: Si quieres persistir logs o configurar volumen
+    # volumes:
+    #   - ./logs:/var/log/nginx

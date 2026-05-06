@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Industrial Printer 3D</title>
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family: system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#e0e0e0;overflow:hidden;height:100vh}
+        #container{display:flex;height:100%}
+        #canvas-container{flex:1;position:relative}
+        #canvas{width:100%;height:100%;display:block}
+        #controls{width:320px;background:rgba(20,30,50,.95);padding:15px;overflow-y:auto;border-left:2px solid #3498db}
+        h1{color:#3498db;margin-bottom:15px;font-size:1.4em;text-align:center}
+        .section{background:rgba(255,255,255,.05);padding:12px;margin-bottom:12px;border-radius:8px;border:1px solid rgba(52,152,219,.3)}
+        .section h3{color:#e74c3c;margin-bottom:8px;font-size:1em}
+        .btn-group{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+        button{background:linear-gradient(45deg,#3498db,#2980b9);color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;font-size:13px;flex:1;min-width:70px;transition:all .2s}
+        button:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(52,152,219,.4)}
+        button.active{background:linear-gradient(45deg,#e74c3c,#c0392b)}
+        .slider{width:100%;margin:5px 0}
+        .part-list li{padding:6px;margin:3px 0;background:rgba(255,255,255,.05);border-radius:4px;display:flex;justify-content:space-between;cursor:pointer}
+        .part-list li:hover{background:rgba(52,152,219,.2)}
+        .part-list li.detached{opacity:.5;color:#e74c3c}
+        #status{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.7);padding:8px 15px;border-radius:4px;font-size:13px}
+        #speed{font-size:1.8em;text-align:center;margin:8px 0}
+        #loading{position:fixed;inset:0;background:rgba(26,26,46,.95);display:flex;justify-content:center;align-items:center;z-index:999}
+        .spinner{border:4px solid rgba(52,152,219,.3);border-radius:50%;border-top-color:#3498db;width:40px;height:40px;animation:spin 1s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+    </style>
+</head>
+<body>
+    <div id="loading"><div><div class="spinner"></div><p style="text-align:center;margin-top:15px">Cargando...</p></div></div>
+    <div id="container">
+        <div id="canvas-container"><canvas id="canvas"></canvas><div id="status">Estado: Parada</div></div>
+        <div id="controls">
+            <h1>🖨️ Control Industrial</h1>
+            <div class="section">
+                <h3>Operación</h3>
+                <div class="btn-group">
+                    <button id="printBtn">▶ Iniciar</button>
+                    <button id="pauseBtn">⏸ Pausa</button>
+                    <button id="stopBtn">⏹ Stop</button>
+                </div>
+                <div id="speed">0 mm/s</div>
+                <label>Velocidad</label>
+                <input type="range" class="slider" id="speedSlider" min="0" max="200" value="100">
+            </div>
+            <div class="section">
+                <h3>Desmontaje</h3>
+                <div class="btn-group">
+                    <button id="dismountAllBtn">🔧 Todo</button>
+                    <button id="mountAllBtn">🔩 Todo</button>
+                </div>
+            </div>
+            <div class="section">
+                <h3>Componentes</h3>
+                <ul class="part-list" id="partList" style="list-style:none">
+                    <li data-part="printHead">Cabeza imp.</li>
+                    <li data-part="carriage">Carro</li>
+                    <li data-part="nozzleGroup">Boquillas</li>
+                    <li data-part="conveyor">Cinta</li>
+                    <li data-part="heatingElement">Resistencia</li>
+                    <li data-part="sensor">Sensor</li>
+                    <li data-part="motor">Motor</li>
+                </ul>
+            </div>
+            <div class="section">
+                <h3>Vista</h3>
+                <div class="btn-group">
+                    <button id="isoViewBtn">Iso</button>
+                    <button id="frontViewBtn">Frontal</button>
+                    <button id="topViewBtn">Top</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
