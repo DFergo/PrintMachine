@@ -1,8 +1,7 @@
-// Industrial Printer 3D - Optimized Version
-// Reduced dependencies, inline Three.js CDN, lazy loading
+// Industrial Printer 3D - Fixed Version
+// Canvas now fills the container properly
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Load Three.js first
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.onload = initApp;
@@ -26,7 +25,6 @@ const PART_CONFIGS = {
 };
 
 function initApp() {
-    // Load OrbitControls
     const controlsScript = document.createElement('script');
     controlsScript.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
     controlsScript.onload = initScene;
@@ -34,18 +32,19 @@ function initApp() {
 }
 
 function initScene() {
-    // Hide loading
     document.getElementById('loading').style.display = 'none';
     
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x1a1a2e);
     
     const canvas = document.getElementById('canvas');
-    camera = new THREE.PerspectiveCamera(60, canvas.width / canvas.height, 0.1, 1000);
+    const container = document.getElementById('canvas-container');
+    
+    camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
     camera.position.set(300, 300, 300);
     
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setSize(canvas.width, canvas.height);
+    renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.shadowMap.enabled = true;
     
     controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -57,6 +56,7 @@ function initScene() {
     animate();
     
     window.addEventListener('resize', onResize);
+    onResize();
 }
 
 function setupLights() {
@@ -70,7 +70,6 @@ function setupLights() {
 }
 
 function createPrinter() {
-    // Base
     const baseGeo = new THREE.BoxGeometry(400, 20, 200);
     const baseMat = new THREE.MeshPhongMaterial({ color: 0x2c3e50 });
     const base = new THREE.Mesh(baseGeo, baseMat);
@@ -78,7 +77,6 @@ function createPrinter() {
     base.castShadow = true;
     scene.add(base);
     
-    // Parts
     Object.entries(PART_CONFIGS).forEach(([name, cfg]) => {
         const geo = new THREE.BoxGeometry(cfg.size.x, cfg.size.y, cfg.size.z);
         const mat = new THREE.MeshPhongMaterial({ color: cfg.color, shininess: 100 });
@@ -87,7 +85,6 @@ function createPrinter() {
         mesh.castShadow = true;
         mesh.userData = { name, orig: cfg.pos, detach: cfg.detach, anim: cfg.animate };
         
-        // Wireframe
         const wf = new THREE.LineSegments(
             new THREE.WireframeGeometry(geo),
             new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.2, transparent: true })
@@ -99,7 +96,6 @@ function createPrinter() {
         printerParts[name] = mesh;
     });
     
-    // Support columns
     const colGeo = new THREE.BoxGeometry(20, 200, 20);
     const colMat = new THREE.MeshPhongMaterial({ color: 0x7f8c8d });
     [[-180,-80],[-180,80],[180,-80],[180,80]].forEach(([x,z]) => {
@@ -109,7 +105,6 @@ function createPrinter() {
         scene.add(col);
     });
     
-    // Control panel
     const panel = new THREE.Mesh(
         new THREE.BoxGeometry(60, 80, 10),
         new THREE.MeshPhongMaterial({ color: 0x34495e })
@@ -158,6 +153,7 @@ function updateStatus() {
     const status = document.getElementById('status');
     const printBtn = document.getElementById('printBtn');
     const pauseBtn = document.getElementById('pauseBtn');
+    document.getElementById('speedValue').textContent = state.speed;
     
     if (state.printing && !state.paused) {
         status.textContent = 'Estado: Imprimiendo';
@@ -221,9 +217,13 @@ function animate() {
 
 function onResize() {
     const canvas = document.getElementById('canvas');
-    const width = window.innerWidth - 350;
-    const height = window.innerHeight;
+    const container = document.getElementById('canvas-container');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
 }
